@@ -2,16 +2,16 @@ import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useIntersection } from "@mantine/hooks";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Container, Divider, SimpleGrid } from "@chakra-ui/react";
-// Components
-import Searchbar from "../components/Searchbar/Searchbar";
-import CustomCard from "../components/card";
+import { Container, SimpleGrid } from "@chakra-ui/react";
+import { UNSPLASH_KEY, FILTER_OPTIONS } from "../constants";
 
-const key = "bPfgiIw4vW72MUt72sWrzfIR4KSMdhe3J0brvyZqoCs";
+// Components
+import Searchbar from "../components/Searchbar";
+import GridCard from "../components/GridCard";
 
 const fetchPhotos = async (page: number, params: URLSearchParams) => {
   const response = await fetch(
-    `https://api.unsplash.com/search/photos?page=${page}&query=dog&client_id=${key}&${params}`
+    `https://api.unsplash.com/search/photos?page=${page}&query=dog&client_id=${UNSPLASH_KEY}&${params}`
   );
   return response.json();
 };
@@ -19,36 +19,12 @@ const fetchPhotos = async (page: number, params: URLSearchParams) => {
 function Home() {
   const [searchParams] = useSearchParams();
   const params = new URLSearchParams(searchParams);
-  const { data, fetchNextPage, refetch, isFetchingNextPage } = useInfiniteQuery(
-    {
-      queryKey: ["photos"],
-      queryFn: ({ pageParam }) => fetchPhotos(pageParam, params),
-      initialPageParam: 1,
-      getNextPageParam: (_, pages) => pages.length + 1,
-    }
-  );
-  const filterOptions = [
-    {
-      name: "orientation",
-      options: ["landscape", "portrait", "squarish"],
-    },
-    {
-      name: "color",
-      options: [
-        "black_and_white",
-        "black",
-        "white",
-        "yellow",
-        "orange",
-        "red",
-        "purple",
-        "magenta",
-        "green",
-        "teal",
-        "blue",
-      ],
-    },
-  ];
+  const { data, fetchNextPage, refetch, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ["photos"],
+    queryFn: ({ pageParam }) => fetchPhotos(pageParam, params),
+    initialPageParam: 1,
+    getNextPageParam: (_, pages) => pages.length + 1,
+  });
   const lastPhotoRef = useRef<HTMLElement>(null);
   const { ref, entry } = useIntersection({
     root: lastPhotoRef.current,
@@ -63,20 +39,19 @@ function Home() {
 
   return (
     <Container maxW="6xl" paddingY={20}>
-      <Searchbar onSearchButtonClick={refetch} filterOptions={filterOptions} />
-      <Divider />
+      <Searchbar onSearchButtonClick={refetch} filterOptions={FILTER_OPTIONS} />
       <SimpleGrid
-        columns={{ sm: 2, md: 3 }}
-        spacing="40px"
+        spacing="10px"
+        minChildWidth='300px'
         justifyItems="center"
       >
         {_photos?.map((photo, i) =>
           i === _photos.length - 1 ? (
-            <div ref={ref}>
-              <CustomCard key={photo.id}  photo={photo}></CustomCard>
+            <div key={photo.id} ref={ref}>
+              <GridCard photo={photo}></GridCard>
             </div>
           ) : (
-            <CustomCard key={photo.id} photo={photo}></CustomCard>
+            <GridCard key={photo.id} photo={photo}></GridCard>
           )
         )}
         {isFetchingNextPage && "Loading more..."}

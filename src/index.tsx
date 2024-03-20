@@ -1,29 +1,26 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./views/Home";
 import { ChakraProvider } from "@chakra-ui/react";
-import DetailPhoto from "./views/DetailPhoto";
+import PhotoDetail from "./views/PhotoDetail";
+import Home from "./views/Home";
+
+import "./index.css";
 
 const queryClient = new QueryClient();
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/detail-photo/:id",
-    element: <DetailPhoto />,
-  },
-]);
+const router = createBrowserRouter([{
+  element: <Home />,
+  path: "/",
+}, {
+  path: "/detail-photo/:id",
+  element: <PhotoDetail />,
+}]);
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
